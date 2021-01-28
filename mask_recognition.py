@@ -37,6 +37,11 @@ while True:
 
         label = "Mask" if mask > withoutMask else "No Mask"
 
+        if mask > withoutMask:
+            print('mask')
+        else:
+            print('without')
+
         color = (0, 255, 0) if label == "Mask" else (0, 0, 255)
         label = "{}: {:.2f}%".format(label, max(mask, withoutMask) * 100)
         cv2.putText(frame, label, (x, y - 10),
