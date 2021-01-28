@@ -34,7 +34,9 @@ while True:
             preds = model.predict(faces_list)
         for pred in preds:
             (mask, withoutMask) = pred
+
         label = "Mask" if mask > withoutMask else "No Mask"
+
         color = (0, 255, 0) if label == "Mask" else (0, 0, 255)
         label = "{}: {:.2f}%".format(label, max(mask, withoutMask) * 100)
         cv2.putText(frame, label, (x, y - 10),
