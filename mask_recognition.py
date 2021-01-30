@@ -6,9 +6,7 @@ from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
 import numpy as np
 import dlib
 from math import hypot
-from multiprocessing import Process
-from playsound import playsound
-
+from pygame import mixer
 
 cascPath = os.path.dirname(
     cv2.__file__) + "/data/haarcascade_frontalface_alt2.xml"
@@ -18,7 +16,9 @@ video_capture = cv2.VideoCapture(0)
 detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
 nose_image = cv2.imread("pignose.png")
-alarm_file = "alarm_tone.mp3"
+
+mixer.init()
+mixer.music.load("alarm_tone.wav") # from https://www.zedge.net/ringtone/0db66728-32cc-40c3-9163-8c6c775f0312
 play_alarm = 0
 
 
@@ -35,6 +35,8 @@ def detect_faces():
                                              flags=cv2.CASCADE_SCALE_IMAGE)
         faces_list = []
         preds = []
+        if faces is ():
+            mixer.music.stop()
         for (x, y, w, h) in faces:
             face_frame = frame[y:y + h, x:x + w]
             face_frame = cv2.cvtColor(face_frame, cv2.COLOR_BGR2RGB)
@@ -51,14 +53,13 @@ def detect_faces():
             label = "Mask" if mask > withoutMask else "No Mask"
 
             if mask > withoutMask:
-                print('mask')
                 play_alarm = 0
-                play_sound(False)
-
+                mixer.music.stop()
             else:
                 draw_mask(frame)
                 play_alarm += 1
-                play_sound(True)
+                if play_alarm is 1:
+                    mixer.music.play()
 
             color = (0, 255, 0) if label == "Mask" else (0, 0, 255)
             label = "{}: {:.2f}%".format(label, max(mask, withoutMask) * 100)
@@ -111,20 +112,6 @@ def draw_mask(frame):
 
         frame[top_left[1]: top_left[1] + nose_height,
         top_left[0]: top_left[0] + nose_width] = final_nose
-
-
-def sound_alarm():
-    global play_alarm
-    if play_alarm is 1:
-        playsound(alarm_file, False)
-
-
-def play_sound(state):
-    audio_process = Process(target=sound_alarm)
-    if not audio_process.is_alive() and state:
-        audio_process.run()
-    elif not state:
-        audio_process.terminate()
 
 
 if __name__ == '__main__':
