@@ -21,6 +21,7 @@ mixer.init()
 mixer.music.load("alarm_tone.wav") # from https://www.zedge.net/ringtone/0db66728-32cc-40c3-9163-8c6c775f0312
 play_alarm = 0
 
+font = cv2.FONT_HERSHEY_SIMPLEX 
 
 def detect_faces():
     global play_alarm
@@ -55,6 +56,7 @@ def detect_faces():
             if mask > withoutMask:
                 play_alarm = 0
                 mixer.music.stop()
+                compliment(frame)
             else:
                 draw_mask(frame)
                 play_alarm += 1
@@ -113,6 +115,15 @@ def draw_mask(frame):
         frame[top_left[1]: top_left[1] + nose_height,
         top_left[0]: top_left[0] + nose_width] = final_nose
 
+
+def compliment(frame):
+    cv2.putText(frame,
+                'Mooi mondmasker!',
+                (50, 50),
+                font, 1,
+                (0, 255, 255),
+                2,
+                cv2.LINE_4)
 
 if __name__ == '__main__':
     detect_faces()
