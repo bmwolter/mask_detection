@@ -6,6 +6,9 @@ from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
 import numpy as np
 import dlib
 from math import hypot
+from multiprocessing import Process
+from playsound import playsound
+
 
 cascPath = os.path.dirname(
     cv2.__file__) + "/data/haarcascade_frontalface_alt2.xml"
@@ -15,9 +18,12 @@ video_capture = cv2.VideoCapture(0)
 detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
 nose_image = cv2.imread("pignose.png")
+alarm_file = "alarm_tone.mp3"
+play_alarm = 0
 
 
 def detect_faces():
+    global play_alarm
     while True:
         # Capture frame-by-frame
         ret, frame = video_capture.read()
@@ -46,8 +52,12 @@ def detect_faces():
 
             if mask > withoutMask:
                 print('mask')
+                play_alarm = 0
+
             else:
                 draw_mask(frame)
+                play_alarm += 1
+                play_sound()
 
             color = (0, 255, 0) if label == "Mask" else (0, 0, 255)
             label = "{}: {:.2f}%".format(label, max(mask, withoutMask) * 100)
@@ -100,6 +110,20 @@ def draw_mask(frame):
 
         frame[top_left[1]: top_left[1] + nose_height,
         top_left[0]: top_left[0] + nose_width] = final_nose
+
+
+def sound_alarm():
+    global play_alarm
+    if play_alarm is 1:
+        playsound(alarm_file, False)
+
+
+def play_sound():
+    audio_process = Process(target=sound_alarm)
+    if not audio_process.is_alive():
+        audio_process.run()
+    else:
+        pass
 
 
 if __name__ == '__main__':
