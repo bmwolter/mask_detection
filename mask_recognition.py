@@ -8,6 +8,10 @@ import dlib
 from math import hypot
 from pygame import mixer
 
+#Mask detectie van https://www.mygreatlearning.com/blog/real-time-face-detection/#sh2
+
+#Face filter van https://morioh.com/p/d98124a6dc05
+
 cascPath = os.path.dirname(
     cv2.__file__) + "/data/haarcascade_frontalface_alt2.xml"
 faceCascade = cv2.CascadeClassifier(cascPath)
@@ -21,7 +25,7 @@ mixer.init()
 mixer.music.load("alarm_tone.wav") # from https://www.zedge.net/ringtone/0db66728-32cc-40c3-9163-8c6c775f0312
 play_alarm = 0
 
-font = cv2.FONT_HERSHEY_SIMPLEX 
+font = cv2.FONT_HERSHEY_SIMPLEX
 
 def detect_faces():
     global play_alarm
@@ -124,6 +128,7 @@ def compliment(frame):
                 (0, 255, 255),
                 2,
                 cv2.LINE_4)
+
 
 if __name__ == '__main__':
     detect_faces()
