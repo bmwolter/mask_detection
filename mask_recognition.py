@@ -53,11 +53,12 @@ def detect_faces():
             if mask > withoutMask:
                 print('mask')
                 play_alarm = 0
+                play_sound(False)
 
             else:
                 draw_mask(frame)
                 play_alarm += 1
-                play_sound()
+                play_sound(True)
 
             color = (0, 255, 0) if label == "Mask" else (0, 0, 255)
             label = "{}: {:.2f}%".format(label, max(mask, withoutMask) * 100)
@@ -118,12 +119,12 @@ def sound_alarm():
         playsound(alarm_file, False)
 
 
-def play_sound():
+def play_sound(state):
     audio_process = Process(target=sound_alarm)
-    if not audio_process.is_alive():
+    if not audio_process.is_alive() and state:
         audio_process.run()
-    else:
-        pass
+    elif not state:
+        audio_process.terminate()
 
 
 if __name__ == '__main__':
